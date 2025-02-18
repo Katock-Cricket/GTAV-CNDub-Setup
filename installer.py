@@ -7,6 +7,8 @@ from time import sleep
 from tkinter import messagebox
 from tkinter import scrolledtext
 
+import psutil
+
 from base_utils import extract_rpf, build_rpf
 
 game_dir = ''
@@ -24,7 +26,7 @@ cn_dub_mod = 'gta5_chinese_dubbed'
 modloader_path = os.path.join('pre_install', 'OpenIV.asi')
 
 sfx_rpf_list: list[str] = [
-    'CUTSCENE_MASTERED_ONLY.rpf'
+    'CUTSCENE_MASTERED_ONLY.rpf',
     'PAIN.rpf',
     'PROLOGUE.rpf',
     'S_MISC.rpf',
@@ -89,13 +91,14 @@ def install_tv():
 
     append_output(f'构建电视节目 mod {tv_rpf}...\n')
     ret = build_rpf(game_dir, os.path.join(tmp_path, 'x64d.rpf'), mods_path)
-    append_output(ret + f'\n构建电视节目 mod {tv_rpf} 完成\n')
+    append_output(ret + f'\n构建电视节目 mod {tv_rpf} 完成，请等待其他部件安装完成\n')
 
 
 def install_sfx():
     for rpf in sfx_rpf_list:
         mod_root = os.path.join(cn_dub_mod, 'x64', 'audio', 'sfx', rpf)
         if not os.path.exists(mod_root):
+            append_output(f'音频MOD {rpf} 尚未更新，跳过\n')
             continue
 
         append_output(f'解析原音频{rpf}...\n')
@@ -123,10 +126,12 @@ def install_subtitles():
     mod_root = os.path.join(cn_dub_mod, 'update', 'update.rpf', 'x64', 'data', 'lang', 'chinesesimp_rel.rpf')
     ori_rpf = update_rpf
 
-    if not os.path.exists(os.path.join(game_dir, 'update', 'update.rpf')):
-        if not os.path.exists(os.path.join(game_dir, 'update', 'update2.rpf')):
-            raise AssertionError('无法找到update.rpf或update2.rpf')
+    if not os.path.exists(update_rpf) and not os.path.exists(update2_rpf):
+        raise AssertionError('无法找到update.rpf或update2.rpf，请确认游戏版本是否正确\n')
+
+    if os.path.exists(update2_rpf):  # 可能是steam版
         ori_rpf = update2_rpf
+        append_output('检测到您的游戏版本为Steam版，将使用update2.rpf作为原字幕RPF\n')
 
     rpf_name = os.path.basename(ori_rpf)
 
@@ -139,7 +144,7 @@ def install_subtitles():
         ori_file = os.path.join(tmp_path, rpf_name, 'x64', 'data', 'lang', 'chinesesimp_rel.rpf', file)
         os.remove(ori_file)
         shutil.copy(mod_file, ori_file)
-    append_output(f'拷贝字幕MOD到{rpf_name}完成，请等待其他部件安装完成\n')
+    append_output(f'拷贝字幕MOD到{rpf_name}完成\n')
 
     target_path = os.path.join(mods_path, 'update')
     if not os.path.exists(target_path):
@@ -169,11 +174,22 @@ def append_output(text):
 
     text_box.config(state=tk.NORMAL)
     text_box.insert(tk.END, text)
-    text_box.yview(tk.END)  # Scroll to the bottom
+    text_box.yview(tk.END)
     text_box.config(state=tk.DISABLED)
 
 
-
+def kill_gtautil_processes():
+    # 遍历所有正在运行的进程
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'] == 'GTAUtil.exe':
+            # 如果进程的名字是 GTAUtil
+            try:
+                proc.kill()  # 尝试终止该进程
+                append_output(f"进程 {proc.info['name']} (PID: {proc.info['pid']}) 已终止\n")
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                # 处理权限不足或者进程已消失的情况
+                raise AssertionError("GTAUtil进程不存在或权限不足")
+    append_output("已停止所有后台GTAUtil进程\n")
 
 
 def install_main(game_dir, uninstall=False):
@@ -205,9 +221,15 @@ def install_main(game_dir, uninstall=False):
         try:
             append_output("开始安装...程序结束前请勿关闭此窗口和安装器\n")
 
-            if not os.path.exists(game_dir) or not os.path.exists(os.path.join(game_dir, 'x64')):
+            if (not os.path.exists(game_dir) or
+                    not os.path.exists(os.path.join(game_dir, 'x64')) or
+                    not os.path.exists(os.path.join(game_dir, 'update'))):
                 raise AssertionError('游戏目录无效，请检查路径是否正确')
+
+            kill_gtautil_processes()
+            append_output('清理缓存...\n')
             clear_cache()
+            append_output('缓存清理完成\n')
             os.makedirs(tmp_path)
 
             os.system('chcp 65001 > nul')
@@ -224,25 +246,38 @@ def install_main(game_dir, uninstall=False):
             #     return
             # append_output('缓存初始化完成\n')
 
-            # 并行安装音频、电视节目、字幕
-            tv_thread = threading.Thread(target=install_tv_wrapper)
-            sfx_thread = threading.Thread(target=install_sfx_wrapper)
-            subtitles_thread = threading.Thread(target=install_subtitles_wrapper)
+            # 获取逻辑处理器数量
+            cpu_count = os.cpu_count()
+            if cpu_count is None:
+                cpu_count = 1
+            append_output(f'CPU逻辑处理器数量: {cpu_count}\n')
+            if cpu_count >= 8:
+                # 并行安装音频、电视节目、字幕
+                append_output('并行安装音频、电视节目、字幕...\n')
+                subtitles_thread = threading.Thread(target=install_subtitles_wrapper, daemon=True)
+                tv_thread = threading.Thread(target=install_tv_wrapper, daemon=True)
+                sfx_thread = threading.Thread(target=install_sfx_wrapper, daemon=True)
 
-            tv_thread.start()
-            sfx_thread.start()
-            subtitles_thread.start()
+                subtitles_thread.start()
+                tv_thread.start()
+                sfx_thread.start()
 
-            tv_thread.join()
-            sfx_thread.join()
-            subtitles_thread.join()
+                subtitles_thread.join()
+                tv_thread.join()
+                sfx_thread.join()
+            else:
+                # 串行安装音频、电视节目、字幕
+                append_output('您的CPU核不够。怕出错，故串行安装音频、电视节目、字幕...\n')
+                install_subtitles_wrapper()
+                install_sfx_wrapper()
+                install_tv_wrapper()
 
             append_output('--------清理缓存...\n')
             clear_cache()
 
-            append_output('--------安装完成\n')
-            sleep(2)
-            window.quit()
+            append_output('--------安装完成，可以退出安装器啦\n')
+            # sleep(2)
+            # window.quit()
 
         except Exception as e:
             append_output(f"错误: {str(e)}\n")

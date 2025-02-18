@@ -1,6 +1,7 @@
 import os
 import subprocess
 import sys
+from time import sleep
 
 # if getattr(sys, 'frozen', False):
 #     util_path = os.path.join(sys._MEIPASS, 'gtautil', 'GTAUtil.exe')
@@ -50,7 +51,7 @@ def extract_rpf(game_dir: str, tmp_path: str, rpf_path: str) -> str:
         shell=True,
         creationflags=subprocess.CREATE_NO_WINDOW
     )
-
+    sleep(2)
     input_data = f"{game_dir}\n".encode('utf-8')
     stdout, stderr = process.communicate(input=input_data)
 
@@ -82,6 +83,7 @@ def build_rpf(game_dir: str, source_path, target_path) -> str:
         shell=True,
         creationflags=subprocess.CREATE_NO_WINDOW
     )
+    sleep(2)
     input_data = f"{game_dir}\n".encode('utf-8')
     stdout, stderr = process.communicate(input=input_data)
 
