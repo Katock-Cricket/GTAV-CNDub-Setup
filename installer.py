@@ -24,6 +24,7 @@ cn_dub_mod = 'gta5_chinese_dubbed'
 # else:
 #     modloader_path = os.path.join('pre_install', 'OpenIV.asi')
 modloader_path = os.path.join('pre_install', 'OpenIV.asi')
+hook_path = os.path.join('pre_install', 'dinput8.dll')
 
 sfx_rpf_list: list[str] = [
     'CUTSCENE_MASTERED_ONLY.rpf',
@@ -70,9 +71,10 @@ def is_installed(game_dir):
 
 
 def install_modloader():
-    if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
+    if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')) or not os.path.exists(os.path.join(game_dir, 'dinput8.dll')):
         shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
-        append_output("提示: 未安装挂载器OpenIV.asi，已自动为你安装\n")
+        shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
+        append_output("提示: 未安装钩子和挂载器，已自动为你安装\n")
 
 
 def install_tv():

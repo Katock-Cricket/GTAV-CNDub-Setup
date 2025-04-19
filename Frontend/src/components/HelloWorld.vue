@@ -93,8 +93,9 @@ export default {
   <br>
   <ul>
       <li><strong>策划：</strong>Cyber蝈蝈总、DJ小良、小湿帝JokiJoki</li>
-      <li><strong>字幕：</strong>Agera、阿笑-Seichi，CACOLAZY 、Cyber蝈蝈总、蓝风、tails、鸢鸣_Official、小湿帝JokiJoki</li>
+      <li><strong>字幕：</strong>Agera、阿笑-Seichi，CACOLAZY 、Cyber蝈蝈总、蓝风、tails、鸢鸣_Official、小湿帝JokiJoki、kagamiKILL</li>
       <li><strong>配音：</strong>阿尔戈-Argo、阿笑-Seichi、CACOLAZY 、Cricket影音博物馆、Cyber蝈蝈总、Goldship、Hertz、进击的魔界人、小湿帝JokiJoki、蓝风、祈衍、鸢鸣_Official、崴脚小面包、封狼、Q、SCC、工新河、棒冰、九日草方</li>
+      <li><strong>测试/校对：</strong>志存高远之人、斐波那契数列参观者</li>
   </ul>
   <br>
   <p>制作组诚招感兴趣的老师或玩家参与配音和制作（非盈利项目）</p>
@@ -102,7 +103,10 @@ export default {
   <h2>鸣谢</h2>
   <br>
   <ol>
-      <li>鼠子（B站充电/GTAMODX充电）</li>
+      <li>鼠子</li>
+      <li>微信支付</li>
+      <li>志存高远之人</li>
+      <li>kagamiKILL</li>
       <li>銮为延器（爱发电充电）</li>
   </ol>
     `,
