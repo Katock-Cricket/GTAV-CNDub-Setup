@@ -1,7 +1,7 @@
 import webview
 import os
 import configparser
-from installer import install_main
+from installer import install_main, get_install_progress, get_output
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 Assets = os.path.join(current_dir, 'Assets')
@@ -24,6 +24,12 @@ class API:
 
     def install(self):
         install_main(self.directory)
+
+    def install_progress(self):
+        return get_install_progress()
+
+    def get_log(self):
+        return get_output()
 
     def OpenGames(self):
         program_path = os.path.join(self.directory, "GTA5.exe")
