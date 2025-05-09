@@ -101,6 +101,7 @@
   margin: 0;
   font-family: monospace;
 }
+
 .v-progress-linear__content strong {
   color: white;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
@@ -166,11 +167,7 @@ export default {
     startUpdateInterval() {
       this.updateInterval = setInterval(() => {
         getInstallProgress().then(progress => {
-          if (progress === this.progress && (progress + 1) % 10 !== 0 && progress < 100 && progress > 0) {
-            this.progress += 1;
-          } else {
-            this.progress = progress;
-          }
+          this.progress = progress;
         });
         getLog().then(log => {
           this.latestLog = log;
