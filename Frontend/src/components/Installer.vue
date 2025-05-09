@@ -10,26 +10,7 @@
         只在GTAMODX和3DM发布，禁止倒卖和未授权的转载
       </v-card-subtitle>
 
-      <v-card-actions>
-        <v-btn :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="show = !show"></v-btn>
-
-        <v-spacer></v-spacer>
-        <v-btn color="blue" onclick="selectDirectory();" @click="resetDirectory()">
-          选择目录
-          <v-tooltip activator="parent" id="directory " location="top">选择游戏的安装目录</v-tooltip>
-        </v-btn>
-        <v-btn color="orange" onclick="install();" @click="resetProgress()">
-          安装模组
-          <v-tooltip activator="parent" id="directory " location="top">一键自动安装模组</v-tooltip>
-        </v-btn>
-        <v-btn color="orange-lighten-2" onclick="openGames()">
-          启动游戏
-          <v-tooltip activator="parent" location="top">Ciallo～(∠・ω< )⌒☆</v-tooltip>
-        </v-btn>
-
-      </v-card-actions>
-
-      <v-slide-y-transition>
+            <v-slide-y-transition>
         <div v-if="isInstalling">
           <v-divider></v-divider>
           <v-card-text>
@@ -58,6 +39,25 @@
           </v-card-text>
         </div>
       </v-slide-y-transition>
+
+      <v-card-actions>
+        <v-btn :icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'" @click="show = !show"></v-btn>
+
+        <v-spacer></v-spacer>
+        <v-btn color="blue" onclick="selectDirectory();" @click="resetDirectory()">
+          选择目录
+          <v-tooltip activator="parent" id="directory " location="top">选择游戏的安装目录</v-tooltip>
+        </v-btn>
+        <v-btn color="orange" onclick="install();" @click="resetProgress()">
+          安装模组
+          <v-tooltip activator="parent" id="directory " location="top">一键自动安装模组</v-tooltip>
+        </v-btn>
+        <v-btn color="orange-lighten-2" onclick="openGames()">
+          启动游戏
+          <v-tooltip activator="parent" location="top">Ciallo～(∠・ω< )⌒☆</v-tooltip>
+        </v-btn>
+
+      </v-card-actions>
 
       <v-expand-transition>
         <div v-show="show">

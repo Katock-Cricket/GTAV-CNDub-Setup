@@ -19,7 +19,7 @@ hook_path = os.path.join('pre_install', 'dinput8.dll')
 rpfs_to_install = {
     'x64d.rpf': 'x64d.rpf/movies',
     'update/update.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
-    'update/update2.rpf': 'update/update2.rpf/x64/data/lang/chinesesimp_rel.rpf',
+    'update/update2.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
     'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': 'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf',
     'x64/audio/sfx/PAIN.rpf': 'x64/audio/sfx/PAIN.rpf',
     'x64/audio/sfx/PROLOGUE.rpf': 'x64/audio/sfx/PROLOGUE.rpf',
