@@ -1,11 +1,13 @@
 import os
 import subprocess
-from time import sleep
 
 util_path = os.path.join('gtautil', 'GTAUtil.exe')
 
+
 def get_inner_path(input_path: str, rpf_path: str) -> str:
     rpf_name = os.path.basename(rpf_path)
+    if rpf_name == 'update2.rpf':
+        rpf_name = 'update.rpf'  # 兼容update2.rpf，依旧从update.rpf中获取内部路径
 
     # 标准化路径，确保路径分隔符一致
     normalized_input = os.path.normpath(input_path)
