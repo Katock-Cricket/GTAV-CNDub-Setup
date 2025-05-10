@@ -126,8 +126,8 @@ def install_pipeline():
         if cpu_count is None:
             cpu_count = 1
         append_output(f'CPU逻辑处理器数量: {cpu_count}')
-        if cpu_count >= 8:
-            # 使用线程池并行安装RPF，最多4个同时安装
+        if cpu_count >= 5:
+            # 使用线程池并行安装RPF，最多8个同时安装
             append_output('并行安装RPF文件...')
             with ThreadPoolExecutor(max_workers=max(8, cpu_count - 3)) as executor:
                 futures = []
