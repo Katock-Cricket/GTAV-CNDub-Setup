@@ -151,7 +151,7 @@ def install_pipeline():
 
     except Exception as e:
         append_output(f"错误: {str(e)}")
-        messagebox.showerror("安装错误", f"安装过程中出现错误: {str(e)}")
+        # messagebox.showerror("安装错误", f"安装过程中出现错误: {str(e)}")
 
 
 def install_main(new_game_dir):

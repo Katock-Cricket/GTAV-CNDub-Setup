@@ -52,10 +52,6 @@
           安装模组
           <v-tooltip activator="parent" id="directory " location="top">一键自动安装模组</v-tooltip>
         </v-btn>
-        <v-btn color="orange-lighten-2" onclick="openGames()">
-          启动游戏
-          <v-tooltip activator="parent" location="top">Ciallo～(∠・ω< )⌒☆</v-tooltip>
-        </v-btn>
 
       </v-card-actions>
 

@@ -31,12 +31,6 @@ class API:
     def get_log(self):
         return get_output()
 
-    def OpenGames(self):
-        program_path = os.path.join(self.directory, "GTA5.exe")
-        if not os.path.exists(program_path):
-            return "游戏目录无效，请检查目录是否正确。"
-        os.startfile(program_path)
-
 
 if __name__ == '__main__':
     api = API()
