@@ -7,6 +7,7 @@ a = Analysis(
     ],
     datas=[
         ('./Assets', 'Assets/'),
+        ('pwd.txt', '.')
     ],
     hiddenimports=[],
     hookspath=[],

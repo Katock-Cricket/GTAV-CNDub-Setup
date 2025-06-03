@@ -68,3 +68,29 @@ def import2rpf(input_path: str, rpf_path: str) -> str:
     if stdout or stderr:
         return stdout.decode(errors='ignore') + stderr.decode(errors='ignore')
     return ''
+
+
+def encrypt_rpf(rpf_path: str) -> str:
+    """
+    加密RPF文件
+
+    :param rpf_path: 已经拷贝到mods文件夹的RPF文件路径
+    :return: 加密成功返回空字符串，失败返回错误信息
+    """
+    command = [util_path, 'fixarchive ', '--input', rpf_path, '--recursive']
+    print(command)
+    process = subprocess.Popen(
+        command,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        creationflags=subprocess.CREATE_NO_WINDOW
+    )
+    stdout, stderr = process.communicate()
+
+    process.wait()
+
+    if stdout or stderr:
+        return stdout.decode(errors='ignore') + stderr.decode(errors='ignore')
+    return ''

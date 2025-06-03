@@ -10,14 +10,12 @@ Assets = os.path.join(current_dir, 'Assets')
 class API:
     def __init__(self):
         self.config = configparser.ConfigParser()
-        self.config.read('Assets/Config.ini')
         self.directory = self.config.get('Settings', 'directory', fallback='')
 
     def select_directory(self):
         directory = webview.windows[0].create_file_dialog(webview.FOLDER_DIALOG)
         if directory:
             self.directory = directory[0]
-            self.config.set('Settings', 'directory', self.directory)
             with open('Assets/Config.ini', 'w') as configfile:
                 self.config.write(configfile)
         return self.directory

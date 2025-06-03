@@ -6,3 +6,7 @@
 /dist
 /gtautil
 /pre_install
+*.7z
+pwd.txt
+pwd.txt
+*.pak

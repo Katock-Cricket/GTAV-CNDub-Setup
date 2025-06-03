@@ -2,11 +2,11 @@ import os
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from tkinter import messagebox
 
 import psutil
 
-from base_utils import import2rpf
+from gta_utils import import2rpf
+from zip_utils import load_password_from_file, extract_7z_with_password
 
 game_dir = ''
 mods_path = os.path.join(game_dir, 'mods')
@@ -21,6 +21,14 @@ rpfs_to_install = {
     'update/update.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
     'update/update2.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
     'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': 'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf',
+    'x64/audio/sfx/POLICE_SCANNER.rpf': 'x64/audio/sfx/POLICE_SCANNER.rpf',
+    'x64/audio/sfx/S_FULL_AMB_F.rpf': 'x64/audio/sfx/S_FULL_AMB_F.rpf',
+    'x64/audio/sfx/S_FULL_AMB_M.rpf': 'x64/audio/sfx/S_FULL_AMB_M.rpf',
+    'x64/audio/sfx/S_FULL_GAN.rpf': 'x64/audio/sfx/S_FULL_GAN.rpf',
+    'x64/audio/sfx/S_FULL_SER.rpf': 'x64/audio/sfx/S_FULL_SER.rpf',
+    'x64/audio/sfx/S_MINI_AMB.rpf': 'x64/audio/sfx/S_MINI_AMB.rpf',
+    'x64/audio/sfx/S_MINI_GAN.rpf': 'x64/audio/sfx/S_MINI_GAN.rpf',
+    'x64/audio/sfx/S_MINI_SER.rpf': 'x64/audio/sfx/S_MINI_SER.rpf',
     'x64/audio/sfx/PAIN.rpf': 'x64/audio/sfx/PAIN.rpf',
     'x64/audio/sfx/PROLOGUE.rpf': 'x64/audio/sfx/PROLOGUE.rpf',
     'x64/audio/sfx/S_MISC.rpf': 'x64/audio/sfx/S_MISC.rpf',
@@ -40,6 +48,17 @@ log_cache = ''
 
 def get_install_progress():
     return (installed_count / total_count) * 100
+
+
+def unzip_mod() -> bool:
+    append_output('解压MOD本体，请稍候...')
+    ret, pwd = load_password_from_file()
+    if not ret:
+        append_output(f"密码加载失败，请联系作者修复该问题")
+        return False
+    ret, msg = extract_7z_with_password(f'{cn_dub_mod}.pak', pwd, './')
+    append_output(msg)
+    return ret
 
 
 def install_modloader():
@@ -72,8 +91,8 @@ def install_an_rpf(rpf_path: str, mod_dir_path: str):
         shutil.copy(rpf_in_game, rpf_in_modloader)
         append_output(f'拷贝{rpf_path}到{mods_path}完成')
 
+    append_output(f'导入MOD到{rpf_path}中...')
     import2rpf(rpf_dir_in_mod, rpf_in_modloader)
-    append_output(f'导入MOD到{rpf_path}完成')
     installed_count += 1
 
 
@@ -103,7 +122,7 @@ def kill_gtautil_processes():
 
 def install_pipeline():
     try:
-        append_output("开始安装...程序结束前请勿关闭此窗口和安装器")
+        append_output("开始安装...完成前请勿关闭安装器")
         global installed_count
         installed_count = 0
 
@@ -120,6 +139,10 @@ def install_pipeline():
             append_output("提示: mods目录不存在，已自动创建")
 
         install_modloader()
+
+        ret = unzip_mod()
+        if not ret:
+            return
 
         # 获取逻辑处理器数量
         cpu_count = os.cpu_count()
@@ -147,6 +170,8 @@ def install_pipeline():
             for rpf_path, mod_dir_path in rpfs_to_install.items():
                 install_an_rpf(rpf_path, mod_dir_path)
 
+        append_output('删除临时文件...')
+        shutil.rmtree(cn_dub_mod, ignore_errors=True)
         append_output('安装完成！')
 
     except Exception as e:
