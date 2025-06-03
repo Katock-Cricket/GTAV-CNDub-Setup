@@ -1,67 +1,42 @@
-import os
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import psutil
 
+from config import *
+from encrypt import get_pwd
 from gta_utils import import2rpf
-from zip_utils import load_password_from_file, extract_7z_with_password
-
-game_dir = ''
-mods_path = os.path.join(game_dir, 'mods')
-
-cn_dub_mod = 'gta5_chinese_dubbed'
-modloader_path = os.path.join('pre_install', 'OpenIV.asi')
-hook_path = os.path.join('pre_install', 'dinput8.dll')
-
-# key: rpf_path, value: mod_dir_path
-rpfs_to_install = {
-    'x64d.rpf': 'x64d.rpf/movies',
-    'update/update.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
-    'update/update2.rpf': 'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
-    'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': 'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf',
-    'x64/audio/sfx/POLICE_SCANNER.rpf': 'x64/audio/sfx/POLICE_SCANNER.rpf',
-    'x64/audio/sfx/S_FULL_AMB_F.rpf': 'x64/audio/sfx/S_FULL_AMB_F.rpf',
-    'x64/audio/sfx/S_FULL_AMB_M.rpf': 'x64/audio/sfx/S_FULL_AMB_M.rpf',
-    'x64/audio/sfx/S_FULL_GAN.rpf': 'x64/audio/sfx/S_FULL_GAN.rpf',
-    'x64/audio/sfx/S_FULL_SER.rpf': 'x64/audio/sfx/S_FULL_SER.rpf',
-    'x64/audio/sfx/S_MINI_AMB.rpf': 'x64/audio/sfx/S_MINI_AMB.rpf',
-    'x64/audio/sfx/S_MINI_GAN.rpf': 'x64/audio/sfx/S_MINI_GAN.rpf',
-    'x64/audio/sfx/S_MINI_SER.rpf': 'x64/audio/sfx/S_MINI_SER.rpf',
-    'x64/audio/sfx/PAIN.rpf': 'x64/audio/sfx/PAIN.rpf',
-    'x64/audio/sfx/PROLOGUE.rpf': 'x64/audio/sfx/PROLOGUE.rpf',
-    'x64/audio/sfx/S_MISC.rpf': 'x64/audio/sfx/S_MISC.rpf',
-    'x64/audio/sfx/SS_AC.rpf': 'x64/audio/sfx/SS_AC.rpf',
-    'x64/audio/sfx/SS_DE.rpf': 'x64/audio/sfx/SS_DE.rpf',
-    'x64/audio/sfx/SS_FF.rpf': 'x64/audio/sfx/SS_FF.rpf',
-    'x64/audio/sfx/SS_GM.rpf': 'x64/audio/sfx/SS_GM.rpf',
-    'x64/audio/sfx/SS_NP.rpf': 'x64/audio/sfx/SS_NP.rpf',
-    'x64/audio/sfx/SS_QR.rpf': 'x64/audio/sfx/SS_QR.rpf',
-    'x64/audio/sfx/SS_ST.rpf': 'x64/audio/sfx/SS_ST.rpf',
-    'x64/audio/sfx/SS_UZ.rpf': 'x64/audio/sfx/SS_UZ.rpf'
-}
+from zip_utils import extract_7z_with_password
 
 installed_count = 0
 total_count = len(rpfs_to_install)
 log_cache = ''
 
+game_dir = ''
+mods_path = ''
+unzipped_mod_path = ''
+
+
 def get_install_progress():
     return (installed_count / total_count) * 100
 
-
 def unzip_mod() -> bool:
+    if game_dir == '' or mods_path == ''  or unzipped_mod_path == '':
+        raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
+
     append_output('解压MOD本体，请稍候...')
-    ret, pwd = load_password_from_file()
-    if not ret:
-        append_output(f"密码加载失败，请联系作者修复该问题")
-        return False
-    ret, msg = extract_7z_with_password(f'{cn_dub_mod}.pak', pwd, './')
+    if os.path.exists(unzipped_mod_path):
+        shutil.rmtree(unzipped_mod_path)
+    os.makedirs(unzipped_mod_path, exist_ok=True)
+    ret, msg = extract_7z_with_password(f'{cn_dub_mod}.pak', get_pwd(), unzipped_mod_path)
     append_output(msg)
     return ret
 
 
 def install_modloader():
+    if game_dir == '' or mods_path == ''  or unzipped_mod_path == '':
+        raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
     if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')) or not os.path.exists(
             os.path.join(game_dir, 'dinput8.dll')):
         shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
@@ -70,11 +45,14 @@ def install_modloader():
 
 
 def install_an_rpf(rpf_path: str, mod_dir_path: str):
+    if game_dir == '' or mods_path == ''  or unzipped_mod_path == '':
+        raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
+
     global installed_count
 
     rpf_in_game = os.path.join(game_dir, rpf_path)
     rpf_in_modloader = os.path.join(mods_path, rpf_path)
-    rpf_dir_in_mod = os.path.join(cn_dub_mod, mod_dir_path)
+    rpf_dir_in_mod = os.path.join(unzipped_mod_path, cn_dub_mod, mod_dir_path)
 
     append_output(f'开始安装RPF: {rpf_path}')
     if not os.path.exists(rpf_in_game):
@@ -171,17 +149,17 @@ def install_pipeline():
                 install_an_rpf(rpf_path, mod_dir_path)
 
         append_output('删除临时文件...')
-        shutil.rmtree(cn_dub_mod, ignore_errors=True)
+        shutil.rmtree(unzipped_mod_path)
         append_output('安装完成！')
 
     except Exception as e:
         append_output(f"错误: {str(e)}")
-        # messagebox.showerror("安装错误", f"安装过程中出现错误: {str(e)}")
 
 
 def install_main(new_game_dir):
-    global game_dir, mods_path
+    global game_dir, mods_path, unzipped_mod_path
     game_dir = new_game_dir
     mods_path = os.path.join(game_dir, 'mods')
+    unzipped_mod_path = os.path.join(game_dir, 'x64', cn_dub_mod)
 
     threading.Thread(target=install_pipeline, daemon=True).start()

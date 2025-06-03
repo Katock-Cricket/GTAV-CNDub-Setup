@@ -16,7 +16,7 @@ class API:
         directory = webview.windows[0].create_file_dialog(webview.FOLDER_DIALOG)
         if directory:
             self.directory = directory[0]
-            with open('Assets/Config.ini', 'w') as configfile:
+            with open('Assets/config.ini', 'w') as configfile:
                 self.config.write(configfile)
         return self.directory
 
