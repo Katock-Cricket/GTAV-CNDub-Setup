@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing
 import shutil
 
 import py7zr
@@ -24,12 +25,36 @@ def build_frontend():
     os.chdir('..')
 
 
-def zip_mod_with_encrypt(mod_zip_path: str = f'{cn_dub_mod}.pak'):
+def process_file(args):
+    """单个文件的打包处理函数"""
+    i, v, cn_dub_mod = args
+    mod_zip_path = os.path.join(paks_dir, f'{cn_dub_mod}_{i}.pak')
+    rpf_dir_path = os.path.join(cn_dub_mod, v)
+
+    if not os.path.exists(rpf_dir_path):
+        print(f'RPF {v} not found in mod directory.')
+        return
+
+    inner_path = f'{cn_dub_mod}/{v}'
+    print(f'Processing {v}...')
+    with py7zr.SevenZipFile(mod_zip_path, 'w', password=get_pwd(), header_encryption=True) as archive:
+        archive.writeall(rpf_dir_path, inner_path)
+        print(f'RPF {v} compressed to {mod_zip_path}.')
+
+
+def zip_mod_with_encrypt():
     """
-    打包时使用，压缩并加密MOD
+    使用多进程并行打包并加密MOD
     """
-    with py7zr.SevenZipFile(mod_zip_path, 'w', password=get_pwd()) as archive:
-        archive.writeall(cn_dub_mod)
+    # 准备参数列表
+    args_list = [(i, v, cn_dub_mod) for i, (k, v) in enumerate(rpfs_to_install.items())]
+
+    if not os.path.exists(paks_dir):
+        os.makedirs(paks_dir, exist_ok=True)
+
+    # 创建进程池
+    with multiprocessing.Pool(processes=6) as pool:
+        pool.map(process_file, args_list)
 
 
 def build_main(args):
@@ -41,17 +66,16 @@ def build_main(args):
         zip_mod_with_encrypt()
         print('MOD compressed and encrypted.')
 
-    ret = package_exe(args.dist_path)
-    if not ret:
-        return
-
-    print('Executable built.')
+    if args.pack_exe:
+        package_exe(args.dist_path)
+        print('Executable built.')
 
     # 拷贝组件到dist_path
     for item in ['gtautil', 'pre_install']:
         if os.path.exists(item):
             shutil.copytree(item, os.path.join(args.dist_path, item), dirs_exist_ok=True)
-    shutil.copyfile(f'{cn_dub_mod}.pak', os.path.join(args.dist_path, f'{cn_dub_mod}.pak'))
+    shutil.copytree(paks_dir, os.path.join(args.dist_path, 'paks'), dirs_exist_ok=True)
+
     print('Build finished.')
 
 
@@ -60,6 +84,7 @@ if __name__ == '__main__':
     parser.add_argument('--build_frontend', action='store_true', default=False,
                         help='是否重新编译前端页面')
     parser.add_argument('--zip-and-encrypt-mod', action='store_true', default=False, help='是否压缩并加密MOD')
+    parser.add_argument('--pack-exe', action='store_true', default=True, help='是否打包exe')
     parser.add_argument('--mod_path', default='', help='MOD本体文件路径')
     parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed',
                         help='最终MOD包路径')
