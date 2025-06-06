@@ -16,6 +16,7 @@ log_cache = ''
 game_dir = ''
 mods_path = ''
 unzipped_mod_path = ''
+is_installing = False
 
 
 def get_install_progress():
@@ -166,16 +167,23 @@ def install_pipeline():
             for rpf_path, mod_dir_path in rpfs_to_install.items():
                 install_an_rpf(rpf_path, mod_dir_path)
 
-        append_output('删除临时文件...')
-        shutil.rmtree(unzipped_mod_path)
         append_output('安装完成！')
 
     except Exception as e:
         append_output(f"错误: {str(e)}")
+    finally:
+        shutil.rmtree(unzipped_mod_path)
+        global is_installing
+        is_installing = False
 
 
 def install_main(new_game_dir):
-    global game_dir, mods_path, unzipped_mod_path
+    global game_dir, mods_path, unzipped_mod_path, is_installing
+    if is_installing:
+        append_output("正在安装，请勿重复操作")
+        return
+
+    is_installing = True
     game_dir = new_game_dir
     mods_path = os.path.join(game_dir, 'mods')
     unzipped_mod_path = os.path.join(game_dir, 'x64', cn_dub_mod)
