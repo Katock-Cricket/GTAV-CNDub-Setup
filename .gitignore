@@ -10,3 +10,4 @@
 *.pak
 /obfuscated
 pwd.json
+/sig/

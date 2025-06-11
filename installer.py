@@ -1,6 +1,7 @@
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Tuple
 
 import psutil
 
@@ -29,13 +30,13 @@ def install_modloader():
 
     if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
         shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
-        append_output("提示: 未安装ASI Loader, 已自动为你安装")
+        append_output("提示: 未安装OpenIV.asi, 已自动为你安装")
 
-    for asi_dll in asi_loaders:
-        if os.path.exists(os.path.join(game_dir, asi_dll)):
-            return
+    # for asi_dll in asi_loaders:
+    #     if os.path.exists(os.path.join(game_dir, asi_dll)):
+    #         return
     shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
-    append_output("提示: 未安装ASI Loader, 已自动为你安装")
+    # append_output("提示: 未安装ASI Loader, 已自动为你安装")
 
 
 def unzip_rpf(zip_path: str) -> bool:
@@ -48,7 +49,7 @@ def unzip_rpf(zip_path: str) -> bool:
     return ret
 
 
-def install_an_rpf(rpf_path: str, mod_dir_path: str, idx: int):
+def install_an_rpf(rpf_path: str, mod_dir_path: str, idx: int) -> Tuple[bool, str]:
     if game_dir == '' or mods_path == '' or unzipped_mod_path == '':
         raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
 
@@ -62,15 +63,15 @@ def install_an_rpf(rpf_path: str, mod_dir_path: str, idx: int):
     rpf_in_modloader = os.path.join(mods_path, rpf_path)
     rpf_dir_in_mod = os.path.join(unzipped_mod_path, cn_dub_mod, mod_dir_path)
 
-    append_output(f'开始安装: {rpf_path}')
+    append_output(f'开始安装: {rpf_name}')
     if not os.path.exists(rpf_in_game):
         append_output(f'原{rpf_name} 不存在，跳过')
         installed_count += 1
-        return
+        return True, ''
     if not os.path.exists(rpf_dir_in_mod) or not os.listdir(rpf_dir_in_mod):
         append_output(f'MOD {rpf_name} 不存在或为空，可能尚未制作，敬请等待后续更新')
         installed_count += 1
-        return
+        return True, ''
 
     if not os.path.exists(rpf_in_modloader):
         os.makedirs(os.path.dirname(rpf_in_modloader), exist_ok=True)
@@ -78,13 +79,16 @@ def install_an_rpf(rpf_path: str, mod_dir_path: str, idx: int):
         append_output(f'拷贝{rpf_name}完成')
 
     append_output(f'导入MOD到{rpf_name}中...')
-    import2rpf(rpf_dir_in_mod, rpf_in_modloader)
+    success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader)
     shutil.rmtree(rpf_dir_in_mod)
+    if not success:
+        return False, msg
     installed_count += 1
+    return True, ''
 
 
 def append_output(text):
-    print(text)
+    # print(text)
     global log_cache
     log_cache = text + '\n'
 
@@ -103,11 +107,12 @@ def kill_gtautil_processes():
                 append_output(f"进程 {proc.info['name']} (PID: {proc.info['pid']}) 已终止")
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 # 处理权限不足或者进程已消失的情况
-                print("GTAUtil进程不存在或权限不足")
+                # print("GTAUtil进程不存在或权限不足")
+                pass
     # append_output("已停止所有后台GTAUtil进程")
 
 
-def check_game_version() -> tuple[bool, str]:
+def check_game_version() -> Tuple[bool, str]:
     if (not os.path.exists(game_dir) or
             not os.path.exists(os.path.join(game_dir, 'x64')) or
             not os.path.exists(os.path.join(game_dir, 'update'))):
@@ -146,28 +151,34 @@ def install_pipeline():
         if cpu_count is None:
             cpu_count = 1
         append_output(f'CPU逻辑处理器数量: {cpu_count}')
-        if cpu_count >= 5:
+        if cpu_count >= 4:
             # 使用线程池并行安装RPF，最多8个同时安装
             append_output('并行安装RPF文件...')
-            with ThreadPoolExecutor(max_workers=max(8, cpu_count - 3)) as executor:
+            with ThreadPoolExecutor(max_workers=max(8, cpu_count - 2)) as executor:
                 futures = []
                 for idx, (rpf_path, mod_dir_path) in enumerate(rpfs_to_install.items()):
                     future = executor.submit(install_an_rpf, rpf_path, mod_dir_path, idx)
                     futures.append(future)
 
-                # 等待所有任务完成
                 for future in as_completed(futures):
                     try:
-                        future.result()  # 获取结果，如果有异常会在这里抛出
+                        success, msg = future.result()
+                        if not success:
+                            raise Exception(msg)
                     except Exception as e:
                         append_output(f"安装过程中出现错误: {str(e)}")
         else:
             # 串行安装
             append_output('串行安装RPF文件...')
             for rpf_path, mod_dir_path in rpfs_to_install.items():
-                install_an_rpf(rpf_path, mod_dir_path)
+                success, msg = install_an_rpf(rpf_path, mod_dir_path)
+                if not success:
+                    raise Exception(msg)
 
-        append_output('安装完成！')
+        if installed_count == total_count:
+            append_output('安装完成！')
+        else:
+            append_output(f'安装结束，发生错误')
 
     except Exception as e:
         append_output(f"错误: {str(e)}")

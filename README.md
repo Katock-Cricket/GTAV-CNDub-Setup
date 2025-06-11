@@ -7,6 +7,9 @@ RPF导入功能基于gtautil，在此基础上添加了一些自定义功能：h
 
 构建命令：
 ```shell
+# 创建环境, 必须低于3.9，否则win7无法运行
+conda create -n GTAV-CNDub-Setup python=3.8
+conda activate gtav-cndub-setup
 # 构建前端页面
 cd Frontend
 npm install

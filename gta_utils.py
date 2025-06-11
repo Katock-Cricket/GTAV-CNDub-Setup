@@ -1,6 +1,8 @@
 import os
 import subprocess
 
+from typing_extensions import Tuple
+
 util_path = os.path.join('gtautil', 'GTAUtil.exe')
 
 
@@ -40,7 +42,7 @@ def get_inner_path(input_path: str, rpf_path: str) -> str:
     return inner_path
 
 
-def import2rpf(input_path: str, rpf_path: str) -> str:
+def import2rpf(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
     """
     将文件夹内的文件导入游戏原rpf文件。
 
@@ -52,7 +54,7 @@ def import2rpf(input_path: str, rpf_path: str) -> str:
     """
     inner_path = get_inner_path(input_path, rpf_path)
     command = [util_path, 'import2rpf', '--input', input_path, '--output', rpf_path, '--path', inner_path]
-    print(command)
+    # print(command)
     process = subprocess.Popen(
         command,
         stdin=subprocess.PIPE,
@@ -65,12 +67,14 @@ def import2rpf(input_path: str, rpf_path: str) -> str:
 
     process.wait()
 
-    if stdout or stderr:
-        return stdout.decode(errors='ignore') + stderr.decode(errors='ignore')
-    return ''
+    # print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
+
+    if stderr:
+        return False, stderr.decode(errors='ignore')
+    return True, ''
 
 
-def encrypt_rpf(rpf_path: str) -> str:
+def encrypt_rpf(rpf_path: str) -> Tuple[bool, str]:
     """
     加密RPF文件
 
@@ -78,7 +82,7 @@ def encrypt_rpf(rpf_path: str) -> str:
     :return: 加密成功返回空字符串，失败返回错误信息
     """
     command = [util_path, 'fixarchive ', '--input', rpf_path, '--recursive']
-    print(command)
+    # print(command)
     process = subprocess.Popen(
         command,
         stdin=subprocess.PIPE,
@@ -91,6 +95,8 @@ def encrypt_rpf(rpf_path: str) -> str:
 
     process.wait()
 
-    if stdout or stderr:
-        return stdout.decode(errors='ignore') + stderr.decode(errors='ignore')
-    return ''
+    # print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
+
+    if stderr:
+        return False, stderr.decode(errors='ignore')
+    return True, ''

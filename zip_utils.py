@@ -1,9 +1,10 @@
 import os
+from typing import Tuple
 
 import py7zr
 
 
-def extract_7z_with_password(zip_path: str, pwd: str, out_path) -> tuple[bool, str]:
+def extract_7z_with_password(zip_path: str, pwd: str, out_path) -> Tuple[bool, str]:
     if not os.path.exists(zip_path):
         return False, f"压缩文件 '{zip_path}' 不存在。"
 
@@ -20,5 +21,3 @@ def extract_7z_with_password(zip_path: str, pwd: str, out_path) -> tuple[bool, s
         return False, "文件不是有效的 7z 压缩文件，或者文件已损坏。"
     except Exception as e:
         return False, f"解压过程中发生未知错误: {e}"
-
-

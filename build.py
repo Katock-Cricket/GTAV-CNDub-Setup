@@ -1,6 +1,8 @@
 import argparse
+import json
 import multiprocessing
 import shutil
+import subprocess
 
 import py7zr
 
@@ -10,7 +12,7 @@ from encrypt import get_pwd
 
 def package_exe(dist_path) -> bool:
     try:
-        os.system(f'pyinstaller build.spec --distpath {dist_path}')
+        os.system(f'conda activate GTAV-CNDub-Setup && pyinstaller build.spec --distpath {dist_path}')
     except Exception as e:
         print(f'Build failed: {e}')
         return False
@@ -57,6 +59,18 @@ def zip_mod_with_encrypt():
         pool.map(process_file, args_list)
 
 
+def signtool(filename):
+    signtool_exe = r'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe' # signtool exe
+    pfx_file = r'./sig/certificate.pfx' # pfx位置
+    if not os.path.exists(signtool_exe) or not os.path.exists(pfx_file):
+        print('signtool.exe or certificate.pfx not found. Skip signing.')
+        return
+    pwd = json.loads(open('sig/pwd.json', 'r').read())['pwd']
+    cmd = f'%s sign /f %s /p {pwd} /v /fd SHA256 %s' % (signtool_exe, pfx_file, filename)
+    proc = subprocess.Popen(cmd)
+    proc.wait()
+
+
 def build_main(args):
     if args.build_frontend:
         build_frontend()
@@ -68,26 +82,30 @@ def build_main(args):
 
     if args.pack_exe:
         package_exe(args.dist_path)
+        signtool(os.path.join(args.dist_path, 'GTAV中配MOD安装器.exe'))
         print('Executable built.')
 
-    # 拷贝组件到dist_path
-    for item in ['gtautil', 'pre_install']:
-        if os.path.exists(item):
-            shutil.copytree(item, os.path.join(args.dist_path, item), dirs_exist_ok=True)
-    shutil.copytree(paks_dir, os.path.join(args.dist_path, 'paks'), dirs_exist_ok=True)
+    if args.copy_utils:
+        for item in ['gtautil', 'pre_install']:
+            if os.path.exists(item):
+                shutil.copytree(item, os.path.join(args.dist_path, item), dirs_exist_ok=True)
+        print('Utils copied.')
+
+    if args.copy_paks:
+        shutil.copytree(paks_dir, os.path.join(args.dist_path, 'paks'), dirs_exist_ok=True)
+        print('Paks copied.')
 
     print('Build finished.')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--build_frontend', action='store_true', default=False,
-                        help='是否重新编译前端页面')
-    parser.add_argument('--zip-and-encrypt-mod', action='store_true', default=False, help='是否压缩并加密MOD')
+    parser.add_argument('--build_frontend', action='store_true', default=False, help='是否重新编译前端页面')
+    parser.add_argument('--zip-and-encrypt-mod', action='store_true', default=False, help='是否压缩并加密MOD，更新pak')
     parser.add_argument('--pack-exe', action='store_true', default=True, help='是否打包exe')
-    parser.add_argument('--mod_path', default='', help='MOD本体文件路径')
-    parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed',
-                        help='最终MOD包路径')
+    parser.add_argument('--copy-utils', action='store_true', default=True, help='是否拷贝其他工具依赖')
+    parser.add_argument('--copy-paks', action='store_true', default=True, help='是否拷贝pak')
+    parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed', help='最终路径')
     args = parser.parse_args()
 
     build_main(args)

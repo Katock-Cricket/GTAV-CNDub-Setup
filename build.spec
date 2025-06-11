@@ -31,6 +31,7 @@ exe = EXE(
     strip=False,
     upx=True,
     upx_exclude=[],
+    uac_admin=True,
     runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
