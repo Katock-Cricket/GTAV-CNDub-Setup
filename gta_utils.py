@@ -54,7 +54,7 @@ def import2rpf(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
     """
     inner_path = get_inner_path(input_path, rpf_path)
     command = [util_path, 'import2rpf', '--input', input_path, '--output', rpf_path, '--path', inner_path]
-    # print(command)
+    print(command)
     process = subprocess.Popen(
         command,
         stdin=subprocess.PIPE,
@@ -67,7 +67,7 @@ def import2rpf(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
 
     process.wait()
 
-    # print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
+    print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
 
     if stderr:
         return False, stderr.decode(errors='ignore')

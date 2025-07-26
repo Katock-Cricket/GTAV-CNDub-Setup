@@ -6,10 +6,12 @@ from tkinter import messagebox
 
 import webview
 
-from installer import install_main, get_install_progress, get_output
+from config import rpf_to_module, rpfs_to_install_static, update_rpfs_to_install
+from installer import install_main, get_install_progress, get_output, uninstall_main
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 Assets = os.path.join(current_dir, 'Assets')
+
 
 def is_webview2_installed():
     try:
@@ -59,12 +61,27 @@ class API:
     def install(self):
         install_main(self.directory)
 
+    def uninstall(self):
+        uninstall_main(self.directory)
+
     def install_progress(self):
         return get_install_progress()
 
     def get_log(self):
         return get_output()
 
+    def update_modules(self, modules):
+        rpf_list = []
+        for rpf, module in rpf_to_module.items():
+            if module in modules:
+                rpf_list.append(rpf)
+
+        new_val = {}
+        for k, v in rpfs_to_install_static.items():
+            if k in rpf_list:
+                new_val[k] = v
+
+        update_rpfs_to_install(new_val)
 
 root = tk.Tk()
 root.withdraw()
@@ -83,7 +100,7 @@ if __name__ == '__main__':
         'GTAV中配MOD安装器丨Powered by Cyber蝈蝈总 和 鼠子Tomoriゞ ',
         f'{Assets}/UI/index.html',
         js_api=api,
-        width=900,
-        height=650
+        width=920,
+        height=680
     )
     webview.start()

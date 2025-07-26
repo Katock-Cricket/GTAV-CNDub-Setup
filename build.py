@@ -31,37 +31,59 @@ def process_file(args):
     """单个文件的打包处理函数"""
     i, v, cn_dub_mod = args
     mod_zip_path = os.path.join(paks_dir, f'{cn_dub_mod}_{i}.pak')
-    rpf_dir_path = os.path.join(cn_dub_mod, v)
 
-    if not os.path.exists(rpf_dir_path):
-        print(f'RPF {v} not found in mod directory.')
+    if isinstance(v, str):
+        v = [v]
+
+    for dir in v:
+        rpf_dir_path = os.path.join(cn_dub_mod, dir)
+
+        if not os.path.exists(rpf_dir_path):
+            print(f'RPF {dir} not found in mod directory.')
+            return
+
+        inner_path = f'{cn_dub_mod}/{dir}'
+        print(f'Processing {dir}...')
+        with py7zr.SevenZipFile(mod_zip_path, 'w', password=get_pwd(), header_encryption=True) as archive:
+            archive.writeall(rpf_dir_path, inner_path)
+            print(f'Dir {dir} compressed to {mod_zip_path}.')
+
+
+def copy_sign_to_rpf_dirs(rpf_dir_list):
+    sign_file = os.path.join(cn_dub_mod, sign_filename)
+    if not os.path.exists(sign_file):
+        print("Sign File doesn't exist, skip copying")
         return
 
-    inner_path = f'{cn_dub_mod}/{v}'
-    print(f'Processing {v}...')
-    with py7zr.SevenZipFile(mod_zip_path, 'w', password=get_pwd(), header_encryption=True) as archive:
-        archive.writeall(rpf_dir_path, inner_path)
-        print(f'RPF {v} compressed to {mod_zip_path}.')
+    for i, v, _ in rpf_dir_list:
+        if isinstance(v, str):
+            v = [v]
+
+        for dir in v:
+            rpf_dir = os.path.join(cn_dub_mod, dir)
+            if not os.path.exists(rpf_dir):
+                continue
+
+            shutil.copy(sign_file, os.path.join(rpf_dir, sign_filename))
 
 
-def zip_mod_with_encrypt():
+def zip_mod_with_encrypt(args_list):
     """
     使用多进程并行打包并加密MOD
     """
     # 准备参数列表
-    args_list = [(i, v, cn_dub_mod) for i, (k, v) in enumerate(rpfs_to_install.items())]
 
     if not os.path.exists(paks_dir):
         os.makedirs(paks_dir, exist_ok=True)
 
     # 创建进程池
-    with multiprocessing.Pool(processes=6) as pool:
+    with multiprocessing.Pool(processes=max(1, multiprocessing.cpu_count() - 2)) as pool:
         pool.map(process_file, args_list)
 
 
 def signtool(filename):
-    signtool_exe = r'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe' # signtool exe
-    pfx_file = r'./sig/certificate.pfx' # pfx位置
+    signtool_exe = r'C:/Program Files (x86)/Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe'  # signtool exe
+    pfx_file = r'./sig/certificate.pfx'  # pfx位置
     if not os.path.exists(signtool_exe) or not os.path.exists(pfx_file):
         print('signtool.exe or certificate.pfx not found. Skip signing.')
         return
@@ -72,12 +94,18 @@ def signtool(filename):
 
 
 def build_main(args):
+    args_list = [(i, v, cn_dub_mod) for i, (k, v) in enumerate(rpfs_to_install_static.items())]
+
     if args.build_frontend:
         build_frontend()
         print('Frontend built.')
 
+    if args.copy_sign_file:
+        copy_sign_to_rpf_dirs(args_list)
+        print('Copied sign files to rpf dirs.')
+
     if args.zip_and_encrypt_mod:
-        zip_mod_with_encrypt()
+        zip_mod_with_encrypt(args_list)
         print('MOD compressed and encrypted.')
 
     if args.pack_exe:
@@ -100,11 +128,12 @@ def build_main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--build_frontend', action='store_true', default=False, help='是否重新编译前端页面')
+    parser.add_argument('--build_frontend', action='store_true', default=True, help='是否重新编译前端页面')
+    parser.add_argument('--copy-sign-file', action='store_true', default=True, help='拷贝签名文件到每个RPF文件夹')
     parser.add_argument('--zip-and-encrypt-mod', action='store_true', default=False, help='是否压缩并加密MOD，更新pak')
     parser.add_argument('--pack-exe', action='store_true', default=True, help='是否打包exe')
-    parser.add_argument('--copy-utils', action='store_true', default=True, help='是否拷贝其他工具依赖')
-    parser.add_argument('--copy-paks', action='store_true', default=True, help='是否拷贝pak')
+    parser.add_argument('--copy-utils', action='store_true', default=False, help='是否拷贝其他工具依赖')
+    parser.add_argument('--copy-paks', action='store_true', default=False, help='是否拷贝pak')
     parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed', help='最终路径')
     args = parser.parse_args()
 

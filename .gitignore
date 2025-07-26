@@ -13,3 +13,5 @@ pwd.json
 /sig/
 Frontend\public/assets
 .virtualme/
+/paks/
+/.repomap
