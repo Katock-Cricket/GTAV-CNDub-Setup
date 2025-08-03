@@ -1,6 +1,5 @@
 psutil
 pywebview
-py7zr
 pyinstaller
 Pillow
 markdown

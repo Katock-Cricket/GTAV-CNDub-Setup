@@ -6,7 +6,7 @@ from tkinter import messagebox
 
 import webview
 
-from config import rpf_to_module, rpfs_to_install_static, update_rpfs_to_install
+from config import update_modules
 from installer import install_main, get_install_progress, get_output, uninstall_main
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
@@ -71,17 +71,7 @@ class API:
         return get_output()
 
     def update_modules(self, modules):
-        rpf_list = []
-        for rpf, module in rpf_to_module.items():
-            if module in modules:
-                rpf_list.append(rpf)
-
-        new_val = {}
-        for k, v in rpfs_to_install_static.items():
-            if k in rpf_list:
-                new_val[k] = v
-
-        update_rpfs_to_install(new_val)
+        update_modules(modules)
 
 root = tk.Tk()
 root.withdraw()

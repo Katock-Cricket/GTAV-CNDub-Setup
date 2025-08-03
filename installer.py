@@ -1,14 +1,12 @@
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Tuple, Union, List
+from typing import Tuple, List
 
 import psutil
 
 from config import *
-from encrypt import get_pwd
 from gta_utils import import2rpf
-from zip_utils import extract_7z_with_password
 
 installed_count = 0
 total_count = len(rpfs_to_install_static)
@@ -16,7 +14,6 @@ log_cache = ''
 
 game_dir = ''
 mods_path = ''
-unzipped_mod_path = ''
 
 
 def get_install_progress():
@@ -24,7 +21,7 @@ def get_install_progress():
 
 
 def install_modloader():
-    if game_dir == '' or mods_path == '' or unzipped_mod_path == '':
+    if game_dir == '' or mods_path == '':
         raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
 
     if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
@@ -34,16 +31,6 @@ def install_modloader():
     if not os.path.exists(os.path.join(game_dir, 'dinput8.dll')):
         shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
         append_output("提示: 未安装dinput8.dll, 已自动为你安装")
-
-
-def unzip_rpf(zip_path: str) -> bool:
-    if unzipped_mod_path == '':
-        raise AssertionError('解压目录未设置')
-
-    append_output(f'解压{zip_path}，请稍候...')
-    ret, msg = extract_7z_with_password(zip_path, get_pwd(), unzipped_mod_path)
-    append_output(msg)
-    return ret
 
 
 def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_in_modloader: str):
@@ -60,21 +47,11 @@ def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_
     return success, msg
 
 
-def install_an_rpf(rpf_path: str, mod_dir_paths: Union[List[str], str], idx: int) -> Tuple[bool, str]:
+def install_an_rpf(rpf_path: str, mod_dir_paths: List[str], idx: int) -> Tuple[bool, str]:
     if game_dir == '' or mods_path == '' or unzipped_mod_path == '':
         raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
 
     global installed_count
-
-    rpf_attend_to_install = list(rpfs_to_install_static.keys())[idx]
-    if rpf_attend_to_install not in list(get_rpfs_to_install().keys()):
-        append_output(f'未选择安装{rpf_attend_to_install}，跳过')
-        installed_count += 1
-        return True, ''
-
-    zip_path = os.path.join(paks_dir, f'{cn_dub_mod}_{idx}.pak')
-    unzip_rpf(zip_path)
-
     rpf_name = os.path.basename(rpf_path).split('.')[0]
     rpf_in_game = os.path.join(game_dir, rpf_path)
 
@@ -86,11 +63,13 @@ def install_an_rpf(rpf_path: str, mod_dir_paths: Union[List[str], str], idx: int
 
     rpf_in_modloader = os.path.join(mods_path, rpf_path)
 
-    if isinstance(mod_dir_paths, str):
-        mod_dir_paths = [mod_dir_paths]
-
     for mod_dir_path in mod_dir_paths:
-        rpf_dir_in_mod = os.path.join(unzipped_mod_path, cn_dub_mod, mod_dir_path)
+        module = mod_dir_to_module[mod_dir_path]
+        if module not in get_modules():
+            append_output(f'未选择{mod_dir_path}，跳过')
+            continue
+
+        rpf_dir_in_mod = os.path.join(cn_dub_mod, mod_dir_path)
         if not os.path.exists(rpf_dir_in_mod) or not os.listdir(rpf_dir_in_mod):
             append_output(f'MOD {rpf_name} 不存在或为空，可能尚未制作，敬请等待后续更新')
             continue

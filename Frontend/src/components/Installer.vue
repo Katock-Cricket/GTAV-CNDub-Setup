@@ -170,15 +170,15 @@ export default {
     },
       {
         name: '剧情配音',
-        tip: '[必选]真人配音，部分前期主线剧情任务的语音、大世界事件'
+        tip: '[必选]真人配音，部分前期剧情任务的语音、大世界事件'
       },
       {
-        name: '视频配音',
-        tip: '[必选]真人配音，部分剧情任务涉及的电视节目、开屏动画'
+        name: '周边汉化',
+        tip: '[必选]真人配音，部分电视节目；启动动画；部分剧情涉及的贴图汉化'
       },
       {
         name: '配套字幕',
-        tip: '[可选]剧情任务配音的定制字幕，如果你的游戏语言不支持简体中文，安装此项会导致乱码'
+        tip: '[推荐]剧情任务配音的定制字幕，如果你的游戏语言不支持简体中文，安装此项会导致乱码'
       },
       {
         name: 'NPC配音',
@@ -249,7 +249,7 @@ export default {
         let frozenModules = this.modules.filter(item =>
           item.name === '主角配音' ||
           item.name === '剧情配音' ||
-          item.name === '视频配音'
+          item.name === '周边汉化'
         ).map(item => item.name);
 
         frozenModules.forEach(item => {
