@@ -1,10 +1,18 @@
 import os
 import subprocess
+from typing import List
 
 from typing_extensions import Tuple
 
 util_path = os.path.join('gtautil', 'GTAUtil.exe')
+import sys
 
+import clr
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append('gtautil'.format(ROOT_DIR))
+clr.AddReference("RPFUtilsLib")
+from RpfUtilsLib import RpfUtils
 
 def get_inner_path(input_path: str, rpf_path: str) -> str:
     rpf_name = os.path.basename(rpf_path)
@@ -31,18 +39,14 @@ def get_inner_path(input_path: str, rpf_path: str) -> str:
         if os.path.isfile(input_path):
             # 如果是文件，去掉最后一个文件名部分
             inner_path = os.path.join(*remaining_parts[:-1])
-            if inner_path:  # 如果不是根目录，添加路径分隔符
-                inner_path += os.sep
         else:
             # 如果是文件夹，保留全部剩余部分
             inner_path = os.path.join(*remaining_parts)
-            if inner_path:  # 如果不是根目录，添加路径分隔符
-                inner_path += os.sep
 
     return inner_path
 
 
-def import2rpf(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
+def import2rpf_old(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
     """
     将文件夹内的文件导入游戏原rpf文件。
 
@@ -73,30 +77,25 @@ def import2rpf(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
         return False, stderr.decode(errors='ignore')
     return True, ''
 
+def import2rpf(input_dir: str, rpf_path: str, is_gen9: bool, gta_folder: str) -> Tuple[bool, str]:
+    inner_path = get_inner_path(input_dir, rpf_path)
+    # 从input_dir中获取待导入的文件或文件夹列表
+    files_to_import = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+    print(rpf_path, inner_path, is_gen9, gta_folder, files_to_import)
+    logs: List[str] = RpfUtils.ImportFilesToRpf(rpf_path, inner_path, gta_folder, is_gen9, files_to_import)
+    if not logs:
+        return False, "导入失败"
+    # 拼接输出信息
+    output = ""
+    for log in logs:
+        output += log + "\n"
+    print(output)
+    return True, output
 
-def encrypt_rpf(rpf_path: str) -> Tuple[bool, str]:
-    """
-    加密RPF文件
 
-    :param rpf_path: 已经拷贝到mods文件夹的RPF文件路径
-    :return: 加密成功返回空字符串，失败返回错误信息
-    """
-    command = [util_path, 'fixarchive ', '--input', rpf_path, '--recursive']
-    # print(command)
-    process = subprocess.Popen(
-        command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        creationflags=subprocess.CREATE_NO_WINDOW
-    )
-    stdout, stderr = process.communicate()
-
-    process.wait()
-
-    # print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
-
-    if stderr:
-        return False, stderr.decode(errors='ignore')
-    return True, ''
+if __name__ == '__main__':
+    RPF_PATH = r"F:/GTAVE/mods/x64/audio/sfx/PAIN.rpf"
+    INPUT_DIR = "gta5_chinese_dubbed/x64/audio/sfx/PAIN.rpf"
+    GTA_FOLDER = "F:/GTAVE"
+    ret, msg = import2rpf(INPUT_DIR, RPF_PATH, True, GTA_FOLDER)
+    print(msg)

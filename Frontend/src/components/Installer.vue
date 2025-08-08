@@ -42,7 +42,7 @@
 
         <v-btn color="blue" onclick="selectDirectory();" @click="resetDirectory()">
           选择游戏位置
-          <v-tooltip activator="parent" id="directory " location="top">即GTA5.exe所在目录</v-tooltip>
+          <v-tooltip activator="parent" id="directory " location="top">GTA5.exe或GTA5_enhanced.exe所在文件夹</v-tooltip>
         </v-btn>
         <v-btn color="orange" onclick="install();" @click="resetProgress()">
           安装模组
@@ -67,7 +67,7 @@
                 <p>
                   注意：此操作将直接删除mods文件夹中所有包含中配的RPF文件，如果您有其他模组安装在这些RPF中也会被删除！ </p>
                 <p>如果存在以上情况，建议您使用OpenIV或其他工具进行手动卸载。</p>
-                <p>dinput8.dll 和 OpenIV.asi 是mod加载器，请酌情手动删除。</p>
+                <p>dinput8.dll、dsound.dll、OpenIV.asi、OpenRPF.asi等文件是mod加载器，请酌情手动删除。</p>
               </v-col>
             </v-row>
           </v-card-text>

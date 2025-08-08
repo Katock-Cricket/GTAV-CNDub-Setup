@@ -37,12 +37,13 @@ def check_dotnet_version():
     try:
         with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full") as key:
             release = winreg.QueryValueEx(key, "Release")[0]
-            if release >= 461808:
+            if release >= 528040:
                 return True
             return False
 
     except WindowsError:
         return False
+
 
 
 class API:
@@ -81,10 +82,12 @@ if __name__ == '__main__':
 
     if not check_dotnet_version():
         messagebox.showerror('错误',
-                             '未检测到.NET Framework 4.7.2或更高版本，请先到pre_install文件夹中运行.NET安装程序。')
+                             '未检测到.NET Framework 4.8或更高版本，请先到pre_install文件夹中运行.NET安装程序。')
+        os.startfile(os.path.join(current_dir, 'pre_install', '.NET4.8安装程序.exe'))
 
     if not is_webview2_installed():
         messagebox.showerror('错误', '未检测到WebView2运行时，请先到pre_install文件夹中运行WebView2安装程序。')
+        os.startfile(os.path.join(current_dir, 'pre_install', 'WebView2安装程序.exe'))
 
     webview.create_window(
         'GTAV中配MOD安装器丨Powered by Cyber蝈蝈总 和 鼠子Tomoriゞ ',

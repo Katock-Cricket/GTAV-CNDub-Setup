@@ -3,15 +3,10 @@
 /.idea/
 /build/
 /gta5_chinese_dubbed/
-/dist/
-/gtautil/
 /pre_install/
-*.7z
-*.pak
-/obfuscated
-pwd.json
 /sig/
 Frontend\public/assets
 .virtualme/
-/paks/
 /.repomap
+/rpf_utils/obj/
+/installer.log

@@ -1,3 +1,4 @@
+import datetime
 import shutil
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -14,6 +15,7 @@ log_cache = ''
 
 game_dir = ''
 mods_path = ''
+is_enhanced = False
 
 
 def get_install_progress():
@@ -24,13 +26,20 @@ def install_modloader():
     if game_dir == '' or mods_path == '':
         raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
 
-    if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
-        shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
-        append_output("提示: 未安装OpenIV.asi, 已自动为你安装")
-
-    if not os.path.exists(os.path.join(game_dir, 'dinput8.dll')):
-        shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
-        append_output("提示: 未安装dinput8.dll, 已自动为你安装")
+    if is_enhanced:
+        if not os.path.exists(os.path.join(game_dir, 'OpenRPF.asi')):
+            shutil.copy(modloader_path, os.path.join(game_dir, 'OpenRPF.asi'))
+            append_output("提示: OpenRPF.asi, 已自动为你安装")
+        if not os.path.exists(os.path.join(game_dir, 'dsound.dll')):
+            shutil.copy(hook_path, os.path.join(game_dir, 'dsound.dll'))
+            append_output("提示: 未安装asi_loader, 已自动为你安装dsound.dll")
+    else:
+        if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
+            shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
+            append_output("提示: 未安装OpenIV.asi, 已自动为你安装")
+        if not any(os.path.exists(os.path.join(game_dir, dll)) for dll in asi_loaders):
+            shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
+            append_output("提示: 未安装asi_loader, 已自动为你安装dinput8.dll")
 
 
 def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_in_modloader: str):
@@ -42,13 +51,12 @@ def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_
         append_output(f'拷贝{rpf_name}完成')
 
     append_output(f'导入MOD到{rpf_name}中...')
-    success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader)
-    shutil.rmtree(rpf_dir_in_mod)
+    success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader, is_enhanced, game_dir)
     return success, msg
 
 
-def install_an_rpf(rpf_path: str, mod_dir_paths: List[str], idx: int) -> Tuple[bool, str]:
-    if game_dir == '' or mods_path == '' or unzipped_mod_path == '':
+def install_an_rpf(rpf_path: str, mod_dir_paths: List[str]) -> Tuple[bool, str]:
+    if game_dir == '' or mods_path == '':
         raise AssertionError('游戏目录、mods目录或解压后的MOD目录未设置')
 
     global installed_count
@@ -78,12 +86,15 @@ def install_an_rpf(rpf_path: str, mod_dir_paths: List[str], idx: int) -> Tuple[b
         if not success:
             return False, msg
 
+    append_output(f'{rpf_name} 安装完成')
     installed_count += 1
     return True, ''
 
 
 def append_output(text):
     print(text)
+    with open('installer.log', 'a', encoding='utf-8') as f:
+        f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {text}\n')
     global log_cache
     log_cache = text + '\n'
 
@@ -108,18 +119,18 @@ def kill_gtautil_processes():
 
 
 def check_game_version() -> Tuple[bool, str]:
+    global is_enhanced
     if (not os.path.exists(game_dir) or
             not os.path.exists(os.path.join(game_dir, 'x64')) or
             not os.path.exists(os.path.join(game_dir, 'update'))):
         return False, '游戏目录无效，请检查路径是否正确'
 
-    if not os.path.exists(os.path.join(game_dir, 'GTA5.exe')):
-        return False, '游戏目录无效，请检查是否为GTA5传承版（安装器不支持增强版），请参见说明书为增强版安装MOD'
-
     if os.path.exists(os.path.join(game_dir, 'GTA5_Enhanced.exe')):
-        return False, '游戏目录无效，请检查是否为GTA5传承版（安装器不支持增强版），请参见说明书为增强版安装MOD'
+        is_enhanced = True
+        return True, '游戏目录已识别为增强版'
 
-    return True, '游戏目录正确'
+    is_enhanced = False
+    return True, '游戏目录已识别为传承版'
 
 
 def install_pipeline():
@@ -139,8 +150,6 @@ def install_pipeline():
         if not os.path.exists(mods_path):
             os.makedirs(mods_path)
             append_output("提示: mods目录不存在，已自动创建")
-        if not os.path.exists(unzipped_mod_path):
-            os.makedirs(unzipped_mod_path)
 
         install_modloader()
 
@@ -154,8 +163,8 @@ def install_pipeline():
             append_output('并行安装RPF文件...')
             with ThreadPoolExecutor(max_workers=max(8, cpu_count - 2)) as executor:
                 futures = []
-                for idx, (rpf_path, mod_dir_path) in enumerate(rpfs_to_install_static.items()):  # paks的idx是static的idx
-                    future = executor.submit(install_an_rpf, rpf_path, mod_dir_path, idx)
+                for _, (rpf_path, mod_dir_path) in enumerate(rpfs_to_install_static.items()):  # paks的idx是static的idx
+                    future = executor.submit(install_an_rpf, rpf_path, mod_dir_path)
                     futures.append(future)
 
                 for future in as_completed(futures):
@@ -168,9 +177,9 @@ def install_pipeline():
         else:
             # 串行安装
             append_output('串行安装RPF文件...')
-            for idx, (rpf_path, mod_dir_path) in enumerate(rpfs_to_install_static.items()):  # paks的idx是static的idx
+            for _, (rpf_path, mod_dir_path) in enumerate(rpfs_to_install_static.items()):  # paks的idx是static的idx
                 # try:
-                success, msg = install_an_rpf(rpf_path, mod_dir_path, idx)
+                success, msg = install_an_rpf(rpf_path, mod_dir_path)
                 if not success:
                     raise Exception(msg)
                 # except Exception as e:
@@ -184,12 +193,11 @@ def install_pipeline():
     except Exception as e:
         append_output(f"错误: {str(e)}")
     finally:
-        shutil.rmtree(unzipped_mod_path)
         set_installing(False)
 
 
 def install_main(new_game_dir):
-    global game_dir, mods_path, unzipped_mod_path
+    global game_dir, mods_path
     if is_installing():
         append_output("正在执行操作，请勿操作")
         return
@@ -197,13 +205,12 @@ def install_main(new_game_dir):
     set_installing(True)
     game_dir = new_game_dir
     mods_path = os.path.join(game_dir, 'mods')
-    unzipped_mod_path = os.path.join(game_dir, 'x64', cn_dub_mod)
 
     threading.Thread(target=install_pipeline, daemon=True).start()
 
 
 def uninstall_main(new_game_dir):
-    global game_dir, mods_path, unzipped_mod_path
+    global game_dir, mods_path
     if is_installing():
         append_output("正在执行操作，请稍后再试")
         return
@@ -211,7 +218,6 @@ def uninstall_main(new_game_dir):
     set_installing(True)
     game_dir = new_game_dir
     mods_path = os.path.join(game_dir, 'mods')
-    unzipped_mod_path = os.path.join(game_dir, 'x64', cn_dub_mod)
 
     check, msg = check_game_version()
     append_output(msg)
