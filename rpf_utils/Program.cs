@@ -90,8 +90,8 @@ namespace RpfUtilsLib
 
                 if (part.EndsWith(".rpf", StringComparison.OrdinalIgnoreCase))
                 {
-                    logs.Add("Found RPF file: " + part);
-                    logs.Add("Path: " + path);
+                    //logs.Add("Found RPF file: " + part);
+                    //logs.Add("Path: " + path);
                     foreach (var entry in rootRpf.AllEntries)
                     {
                         logs.Add(entry.Name);
@@ -103,8 +103,9 @@ namespace RpfUtilsLib
                             var childRpf = rootRpf.FindChildArchive(fileEntry);
                             if (childRpf != null)
                             {
+                                childRpf.Encryption = RpfEncryption.OPEN;
                                 curDir = childRpf.Root;
-                                logs.Add($"Entered child RPF: {childRpf.Name}");
+                                //logs.Add($"Entered child RPF: {childRpf.Name}");
                             }
                             break;
                         }

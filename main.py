@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import tkinter as tk
 import winreg
 from tkinter import messagebox
@@ -82,12 +83,14 @@ if __name__ == '__main__':
 
     if not check_dotnet_version():
         messagebox.showerror('错误',
-                             '未检测到.NET Framework 4.8或更高版本，请先到pre_install文件夹中运行.NET安装程序。')
-        os.startfile(os.path.join(current_dir, 'pre_install', '.NET4.8安装程序.exe'))
+                             '未检测到.NET Framework 4.8或更高版本，请先到pre_install文件夹中运行.NET安装程序(已自动运行)。安装完成后可能需要重启电脑。')
+        os.startfile(os.path.join('pre_install', '.NET4.8安装程序.exe'))
+        sys.exit(1)
 
     if not is_webview2_installed():
-        messagebox.showerror('错误', '未检测到WebView2运行时，请先到pre_install文件夹中运行WebView2安装程序。')
-        os.startfile(os.path.join(current_dir, 'pre_install', 'WebView2安装程序.exe'))
+        messagebox.showerror('错误', '未检测到WebView2运行时，请先到pre_install文件夹中运行WebView2安装程序(已自动运行)。安装完成后可能需要重启电脑。')
+        os.startfile(os.path.join('pre_install', 'WebView2安装程序.exe'))
+        sys.exit(2)
 
     webview.create_window(
         'GTAV中配MOD安装器丨Powered by Cyber蝈蝈总 和 鼠子Tomoriゞ ',

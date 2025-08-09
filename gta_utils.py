@@ -1,18 +1,15 @@
 import os
-import subprocess
+import sys
 from typing import List
 
+import clr
 from typing_extensions import Tuple
 
-util_path = os.path.join('gtautil', 'GTAUtil.exe')
-import sys
-
-import clr
-
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append('gtautil'.format(ROOT_DIR))
+ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
+sys.path.append(os.path.join(ROOT_DIR, 'gtautil'))
 clr.AddReference("RPFUtilsLib")
 from RpfUtilsLib import RpfUtils
+
 
 def get_inner_path(input_path: str, rpf_path: str) -> str:
     rpf_name = os.path.basename(rpf_path)
@@ -46,41 +43,11 @@ def get_inner_path(input_path: str, rpf_path: str) -> str:
     return inner_path
 
 
-def import2rpf_old(input_path: str, rpf_path: str) -> Tuple[bool ,str]:
-    """
-    将文件夹内的文件导入游戏原rpf文件。
-
-    :param
-    rpf_path: 目标rpf文件完整路径
-    input_path: 待导入的文件或文件夹完整路径
-
-    :return: 导入成功返回空字符串，失败返回错误信息
-    """
-    inner_path = get_inner_path(input_path, rpf_path)
-    command = [util_path, 'import2rpf', '--input', input_path, '--output', rpf_path, '--path', inner_path]
-    print(command)
-    process = subprocess.Popen(
-        command,
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        shell=True,
-        creationflags=subprocess.CREATE_NO_WINDOW
-    )
-    stdout, stderr = process.communicate()
-
-    process.wait()
-
-    print(stdout.decode(errors='ignore'), stderr.decode(errors='ignore'))
-
-    if stderr:
-        return False, stderr.decode(errors='ignore')
-    return True, ''
-
 def import2rpf(input_dir: str, rpf_path: str, is_gen9: bool, gta_folder: str) -> Tuple[bool, str]:
     inner_path = get_inner_path(input_dir, rpf_path)
     # 从input_dir中获取待导入的文件或文件夹列表
-    files_to_import = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
+    files_to_import = [os.path.join(input_dir, f) for f in os.listdir(input_dir) if
+                       os.path.isfile(os.path.join(input_dir, f))]
     print(rpf_path, inner_path, is_gen9, gta_folder, files_to_import)
     logs: List[str] = RpfUtils.ImportFilesToRpf(rpf_path, inner_path, gta_folder, is_gen9, files_to_import)
     if not logs:

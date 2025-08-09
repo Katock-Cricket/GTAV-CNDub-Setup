@@ -4,6 +4,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[
+        ('./gtautil/*.dll', './gtautil'),
     ],
     datas=[
         ('./Assets', 'Assets/'),

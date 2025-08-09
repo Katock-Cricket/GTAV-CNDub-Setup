@@ -91,10 +91,10 @@
 
     <v-row id="Tomori">
       <v-col cols="12" sm="6" style="margin-top: 10px;">
-        <v-card class="mx-auto pa-2" image="/assets/Bridge_view.png" subtitle="我们会公开鸣谢您的赞助，感谢您的支持！"
-                title="赞助">
+        <v-card class="mx-auto pa-2" image="/assets/Bridge_view.png" subtitle="欢迎访问GTAV中配MOD官方网站"
+                title="官网">
           <template v-slot:actions>
-            <v-btn append-icon="mdi-chevron-right" color="red-lighten-2" text="爱发电主页" variant="outlined" block
+            <v-btn append-icon="mdi-chevron-right" color="red-lighten-2" text="官方网站" variant="outlined" block
                    @click="GameVideo"></v-btn>
           </template>
         </v-card>
@@ -193,6 +193,8 @@ export default {
       let response = await fetch('/assets/GTA5中配MOD说明书.md');
       let text = await response.text();
       this.Info = md.render(text); //传入文本
+      // 将info中的<a href替换为<a target="_blank" href，以便在新窗口打开
+      this.Info = this.Info.replace(/<a href/g, '<a target="_blank" href');
       console.log('加载 markdown 文件成功:', this.Info);
     } catch (error) {
       console.error('加载 markdown 文件失败:', error);
@@ -213,7 +215,7 @@ export default {
       window.open('https://space.bilibili.com/37706580', '_blank');
     },
     GameVideo() {
-      window.open('https://ifdian.net/a/Katock', '_blank');
+      window.open('https://v-cn.gtamodx.com/', '_blank');
     },
     startUpdateInterval() {
       this.updateInterval = setInterval(() => {

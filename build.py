@@ -23,18 +23,14 @@ def build_frontend():
     os.chdir('..')
 
 
-def copy_sign_to_rpf_dirs(rpf_dir_list):
+def copy_sign_to_rpf_dirs():
     if not os.path.exists(sign_file):
         print("Sign File doesn't exist, skip copying")
         return
 
-    for i, v, _ in rpf_dir_list:
-        for dir in v:
-            rpf_dir = os.path.join(cn_dub_mod, dir)
-            if not os.path.exists(rpf_dir):
-                continue
-
-            shutil.copy(sign_file, os.path.join(rpf_dir, sign_filename))
+    for root, dirs, files in os.walk(cn_dub_mod):
+        for dir in dirs:
+            shutil.copy(sign_file, os.path.join(root, dir, sign_filename))
 
 
 def signtool(filename):
@@ -50,14 +46,12 @@ def signtool(filename):
 
 
 def build_main(args):
-    args_list = [(i, v, cn_dub_mod) for i, (k, v) in enumerate(rpfs_to_install_static.items())]
-
     if args.build_frontend:
         build_frontend()
         print('Frontend built.')
 
     if args.copy_sign_file:
-        copy_sign_to_rpf_dirs(args_list)
+        copy_sign_to_rpf_dirs()
         print('Copied sign files to rpf dirs.')
 
     if args.pack_exe:
@@ -66,9 +60,8 @@ def build_main(args):
         print('Executable built.')
 
     if args.copy_utils:
-        for item in ['gtautil', 'pre_install']:
-            if os.path.exists(item):
-                shutil.copytree(item, os.path.join(args.dist_path, item), dirs_exist_ok=True)
+        if os.path.exists('pre_install'):
+            shutil.copytree('pre_install', os.path.join(args.dist_path, 'pre_install'), dirs_exist_ok=True)
         print('Utils copied.')
 
     if args.copy_mod_dir:
@@ -84,7 +77,7 @@ if __name__ == '__main__':
     parser.add_argument('--copy-sign-file', action='store_true', default=True, help='拷贝签名文件到每个RPF文件夹')
     parser.add_argument('--pack-exe', action='store_true', default=True, help='是否打包exe')
     parser.add_argument('--copy-utils', action='store_true', default=True, help='是否拷贝其他工具依赖')
-    parser.add_argument('--copy-mod-dir', action='store_true', default=True, help='是否拷贝mod本体')
+    parser.add_argument('--copy-mod-dir', action='store_true', default=False, help='是否拷贝mod本体')
     parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed', help='最终路径')
     args = parser.parse_args()
 

@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "E:\\ai\\GTA5_Chinese\\tools\\GTAV-CNDub-Setup\\rpf_utils\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|E:\\ai\\GTA5_Chinese\\tools\\GTAV-CNDub-Setup\\rpf_utils\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|e:\\ai\\gta5_chinese\\tools\\gtav-cndub-setup\\rpf_utils\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|e:\\ai\\gta5_chinese\\tools\\gtav-cndub-setup\\rpf_utils\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
+      "AbsoluteMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|E:\\ai\\GTA5_Chinese\\tools\\GTAV-CNDub-Setup\\rpf_utils\\app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{C2C55DFF-0928-4EF3-A8F3-BAE666B31FF9}|RPF_Utils.csproj|solutionrelative:app.config||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
   ],
@@ -30,8 +30,7 @@
               "RelativeToolTip": "App.config",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000601|",
-              "WhenOpened": "2025-08-08T14:55:34.256Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-08-08T14:55:34.256Z"
             },
             {
               "$type": "Document",
@@ -41,7 +40,7 @@
               "RelativeDocumentMoniker": "Program.cs",
               "ToolTip": "E:\\ai\\GTA5_Chinese\\tools\\GTAV-CNDub-Setup\\rpf_utils\\Program.cs",
               "RelativeToolTip": "Program.cs",
-              "ViewState": "AgIAAB8AAAAAAAAAAAAQwCoAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAiwHYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-08-08T09:54:17.994Z",
               "EditorCaption": ""

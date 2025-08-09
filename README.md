@@ -1,13 +1,13 @@
 # GTAV-CNDub-Setup
  GTAV中配模组安装器
 
-RPF导入功能基于gtautil，在此基础上添加了一些自定义功能：https://github.com/gizzdev/gtautil
+RPF导入功能基于codewalker：https://github.com/dexyfex/CodeWalker
 
-感谢UI：https://github.com/gtamodxcom/GTA-Vice-City-Nextgen-Edition-Launcher
+UI基于罪恶都市次时代版启动器：https://github.com/gtamodxcom/GTA-Vice-City-Nextgen-Edition-Launcher
 
 构建命令：
 ```shell
-# 创建环境, 必须低于3.9，否则win7无法运行
+# 创建环境, 必须<=3.8，否则win7无法运行
 conda create -n GTAV-CNDub-Setup python=3.8
 conda activate gtav-cndub-setup
 # 构建前端页面

@@ -4,8 +4,6 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Tuple, List
 
-import psutil
-
 from config import *
 from gta_utils import import2rpf
 
@@ -51,6 +49,8 @@ def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_
         append_output(f'拷贝{rpf_name}完成')
 
     append_output(f'导入MOD到{rpf_name}中...')
+    if is_enhanced:
+        rpf_dir_in_mod = os.path.join(rpf_dir_in_mod, 'enhanced')
     success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader, is_enhanced, game_dir)
     return success, msg
 
@@ -83,6 +83,7 @@ def install_an_rpf(rpf_path: str, mod_dir_paths: List[str]) -> Tuple[bool, str]:
             continue
 
         success, msg = import_dir_to_rpf(rpf_dir_in_mod, rpf_name, rpf_in_game, rpf_in_modloader)
+        append_output(msg)
         if not success:
             return False, msg
 
@@ -101,21 +102,6 @@ def append_output(text):
 
 def get_output():
     return log_cache
-
-
-def kill_gtautil_processes():
-    # 遍历所有正在运行的进程
-    for proc in psutil.process_iter(['pid', 'name']):
-        if proc.info['name'] == 'GTAUtil.exe':
-            # 如果进程的名字是 GTAUtil
-            try:
-                proc.kill()  # 尝试终止该进程
-                append_output(f"进程 {proc.info['name']} (PID: {proc.info['pid']}) 已终止")
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                # 处理权限不足或者进程已消失的情况
-                # print("GTAUtil进程不存在或权限不足")
-                pass
-    # append_output("已停止所有后台GTAUtil进程")
 
 
 def check_game_version() -> Tuple[bool, str]:
@@ -145,7 +131,6 @@ def install_pipeline():
             return
 
         os.system('chcp 65001 > nul')
-        kill_gtautil_processes()
 
         if not os.path.exists(mods_path):
             os.makedirs(mods_path)
@@ -205,7 +190,8 @@ def install_main(new_game_dir):
     set_installing(True)
     game_dir = new_game_dir
     mods_path = os.path.join(game_dir, 'mods')
-
+    if os.path.exists('installer.log'):
+        os.remove('installer.log')
     threading.Thread(target=install_pipeline, daemon=True).start()
 
 
