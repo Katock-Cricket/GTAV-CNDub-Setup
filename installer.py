@@ -49,8 +49,10 @@ def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_
         append_output(f'拷贝{rpf_name}完成')
 
     append_output(f'导入MOD到{rpf_name}中...')
-    if is_enhanced:
+
+    if is_enhanced and os.path.exists(os.path.join(rpf_dir_in_mod, 'enhanced')):
         rpf_dir_in_mod = os.path.join(rpf_dir_in_mod, 'enhanced')
+
     success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader, is_enhanced, game_dir)
     return success, msg
 
@@ -66,6 +68,10 @@ def install_an_rpf(rpf_path: str, mod_dir_paths: List[str]) -> Tuple[bool, str]:
     append_output(f'开始安装: {rpf_name}')
     if not os.path.exists(rpf_in_game):
         append_output(f'原{rpf_name} 不存在，跳过')
+        installed_count += 1
+        return True, ''
+    if rpf_path == 'update/update2.rpf' and is_enhanced:
+        append_output(f'跳过{rpf_name}，增强版不支持配套字幕')
         installed_count += 1
         return True, ''
 

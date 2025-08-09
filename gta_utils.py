@@ -40,6 +40,9 @@ def get_inner_path(input_path: str, rpf_path: str) -> str:
             # 如果是文件夹，保留全部剩余部分
             inner_path = os.path.join(*remaining_parts)
 
+    if 'enhanced' in inner_path.lower():
+        # 去掉enhanced文件夹，因为inner_path是对RPF文件说的,enhanced是mod的内部文件夹
+        inner_path = os.path.join(*inner_path.split(os.sep)[:-1])
     return inner_path
 
 
