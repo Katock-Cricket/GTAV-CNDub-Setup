@@ -22,7 +22,9 @@ def is_installing():
 rpfs_to_install_static = {
     'x64c.rpf': ['x64c.rpf/levels/gta5/props/lev_des/v_minigame.rpf'],
     'x64d.rpf': ['x64d.rpf/movies'],
-    'update/update.rpf': ['update/update.rpf/x64/data/lang/chinesesimp_rel.rpf', 'update/update.rpf/x64/movies'],
+    'update/update.rpf': ['update/update.rpf/x64/data/lang/chinesesimp_rel.rpf',
+                          'update/update.rpf/x64/movies',
+                          'update/update.rpf/x64/textures'],
     'update/update2.rpf': ['update/update.rpf/x64/data/lang/chinesesimp_rel.rpf'],
     'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': ['x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf'],
     'x64/audio/sfx/POLICE_SCANNER.rpf': ['x64/audio/sfx/POLICE_SCANNER.rpf'],
@@ -51,6 +53,7 @@ mod_dir_to_module = {
     'x64d.rpf/movies': '周边汉化',
     'update/update.rpf/x64/movies': '周边汉化',
     'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf': '配套字幕',
+    'update/update.rpf/x64/textures': '周边汉化',
     'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': '剧情配音',
     'x64/audio/sfx/POLICE_SCANNER.rpf': 'NPC配音',
     'x64/audio/sfx/S_FULL_AMB_F.rpf': 'NPC配音',
