@@ -77,8 +77,8 @@ if __name__ == '__main__':
     parser.add_argument('--copy-sign-file', action='store_true', default=True, help='拷贝签名文件到每个RPF文件夹')
     parser.add_argument('--pack-exe', action='store_true', default=True, help='是否打包exe')
     parser.add_argument('--copy-utils', action='store_true', default=True, help='是否拷贝其他工具依赖')
-    parser.add_argument('--copy-mod-dir', action='store_true', default=True, help='是否拷贝mod本体')
-    parser.add_argument('--dist_path', default='E:/ai/GTA5_Chinese/gta5_chinese_dubbed', help='最终路径')
+    parser.add_argument('--copy-mod-dir', action='store_true', default=False, help='是否拷贝mod本体')
+    parser.add_argument('--dist_path', default='F:/GTA5_Chinese/gta5_chinese_dubbed', help='最终路径')
     args = parser.parse_args()
 
     build_main(args)

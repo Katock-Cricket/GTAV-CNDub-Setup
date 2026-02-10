@@ -18,8 +18,7 @@
               <pre>{{ latestLog }}</pre>
             </v-alert>
             <v-progress-linear v-if="progress < 100" v-model="progress" color="blue" height="10" striped rounded
-                               class="mb-4"
-            >
+              class="mb-4">
               <template v-slot:default="{ value }">
                 <strong>{{ Math.round(value) }}%</strong>
               </template>
@@ -34,10 +33,8 @@
           <v-icon v-if="showInfo">mdi-chevron-up</v-icon>
           <v-icon v-else>mdi-chevron-down</v-icon>
         </v-btn>
-        <v-select
-          v-model="selectedModules" :items="modules" :item-props="itemProps" item-title="name" label="安装配音内容"
-          chips multiple density="compact" max-width="600px" class="select-container"
-        ></v-select>
+        <v-select v-model="selectedModules" :items="modules" :item-props="itemProps" item-title="name" label="安装配音内容"
+          chips multiple density="compact" max-width="600px" class="select-container"></v-select>
         <v-spacer></v-spacer>
 
         <v-btn color="blue" onclick="selectDirectory();" @click="resetDirectory()">
@@ -84,27 +81,25 @@
       <v-expand-transition>
         <div v-show="showInfo">
           <v-divider></v-divider>
-          <v-card-text v-html="Info" class="markdown-body" style="font-size: small"/>
+          <v-card-text v-html="Info" class="markdown-body" style="font-size: small" />
         </div>
       </v-expand-transition>
     </v-card>
 
     <v-row id="Tomori">
       <v-col cols="12" sm="6" style="margin-top: 10px;">
-        <v-card class="mx-auto pa-2" image="/assets/Bridge_view.png" subtitle="欢迎访问GTAV中配MOD官方网站"
-                title="官网">
+        <v-card class="mx-auto pa-2" image="/assets/Bridge_view.png" subtitle="欢迎访问GTAV中配MOD官方网站" title="官网">
           <template v-slot:actions>
             <v-btn append-icon="mdi-chevron-right" color="red-lighten-2" text="官方网站" variant="outlined" block
-                   @click="GameVideo"></v-btn>
+              @click="GameVideo"></v-btn>
           </template>
         </v-card>
       </v-col>
       <v-col cols="12" sm="6" style="margin-top: 10px;">
-        <v-card class="mx-auto pa-2" image="/assets/Ocean_Drive.png" subtitle="关注作者Cyber蝈蝈总，获取最新动态"
-                title="B站频道">
+        <v-card class="mx-auto pa-2" image="/assets/Ocean_Drive.png" subtitle="关注作者Cyber蝈蝈总，获取最新动态" title="B站频道">
           <template v-slot:actions>
             <v-btn append-icon="mdi-chevron-right" color="red-lighten-2" text="作者主页" variant="outlined" block
-                   @click="DownloadUrl"></v-btn>
+              @click="DownloadUrl"></v-btn>
           </template>
         </v-card>
       </v-col>
@@ -145,7 +140,7 @@
 </style>
 <script lang="ts">
 import MarkdownIt from 'markdown-it'
-import {ref} from 'vue';
+import { ref } from 'vue';
 import 'github-markdown-css';
 
 
@@ -168,22 +163,22 @@ export default {
       name: '主角配音',
       tip: '[必选]真人配音，常见角色包括三主角在大世界中的触发式语音'
     },
-      {
-        name: '剧情配音',
-        tip: '[必选]真人配音，部分前期剧情任务的语音、大世界事件'
-      },
-      {
-        name: '周边汉化',
-        tip: '[必选]真人配音，部分电视节目；启动动画；部分剧情涉及的贴图汉化'
-      },
-      {
-        name: '配套字幕',
-        tip: '[推荐]剧情任务配音的定制字幕，如果你的游戏语言不支持简体中文，安装此项会导致乱码'
-      },
-      {
-        name: 'NPC配音',
-        tip: '[可选]AI配音，覆盖几乎所有路人NPC的语音(7万+条)，但是质量一般'
-      }],
+    {
+      name: '剧情配音',
+      tip: '[必选]真人配音，部分前期剧情任务的语音、大世界事件'
+    },
+    {
+      name: '周边汉化',
+      tip: '[必选]真人配音，部分电视节目；启动动画；部分剧情涉及的贴图汉化'
+    },
+    {
+      name: '配套字幕',
+      tip: '[推荐]剧情任务配音的定制字幕，增强版安装此项会导致乱码'
+    },
+    {
+      name: 'NPC配音',
+      tip: '[可选]AI配音，覆盖几乎所有路人NPC的语音(7万+条)，质量一般'
+    }],
     selectedModules: [''],
     uninstallDialog: false,
   }),

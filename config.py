@@ -1,8 +1,10 @@
 import os
 
 cn_dub_mod = 'gta5_chinese_dubbed'
-modloader_path = os.path.join('pre_install', 'OpenIV.asi')
-hook_path = os.path.join('pre_install', 'dinput8.dll')
+modloader_path_legacy = os.path.join('pre_install', 'OpenIV.asi')
+modloader_path_enhanced = os.path.join('pre_install', 'OpenRPF.asi')
+hook_path_legacy = os.path.join('pre_install', 'dinput8.dll')
+hook_path_enhanced = os.path.join('pre_install', 'xinput1_4.dll')
 sign_file = 'Frontend/public/assets/GTA5中配MOD说明书.md'
 sign_filename = 'GTAV_CNDub_Mod_By_CyberCricket_Bilibili.md'
 _is_installing = False

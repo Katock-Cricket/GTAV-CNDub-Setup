@@ -26,19 +26,19 @@ def install_modloader():
 
     if is_enhanced:
         if not os.path.exists(os.path.join(game_dir, 'OpenRPF.asi')):
-            shutil.copy(modloader_path, os.path.join(game_dir, 'OpenRPF.asi'))
+            shutil.copy(modloader_path_enhanced, os.path.join(game_dir, 'OpenRPF.asi'))
             append_output("提示: OpenRPF.asi, 已自动为你安装")
-        if not os.path.exists(os.path.join(game_dir, 'dsound.dll')):
-            shutil.copy(hook_path, os.path.join(game_dir, 'dsound.dll'))
-            append_output("提示: 未安装asi_loader, 已自动为你安装dsound.dll")
+        if not os.path.exists(os.path.join(game_dir, 'xinput1_4.dll')):
+            shutil.copy(hook_path_enhanced, os.path.join(game_dir, 'xinput1_4.dll'))
+            append_output("提示: 未安装asi_loader, xinput1_4.dll")
     else:
         if not os.path.exists(os.path.join(game_dir, 'OpenIV.asi')):
-            shutil.copy(modloader_path, os.path.join(game_dir, 'OpenIV.asi'))
+            shutil.copy(modloader_path_legacy, os.path.join(game_dir, 'OpenIV.asi'))
             append_output("提示: 未安装OpenIV.asi, 已自动为你安装")
-        if not any(os.path.exists(os.path.join(game_dir, dll)) for dll in asi_loaders):
-            shutil.copy(hook_path, os.path.join(game_dir, 'dinput8.dll'))
+        if not os.path.exists(os.path.join(game_dir, 'dinput8.dll')):
+            shutil.copy(hook_path_legacy, os.path.join(game_dir, 'dinput8.dll'))
             append_output("提示: 未安装asi_loader, 已自动为你安装dinput8.dll")
-
+ 
 
 def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_in_modloader: str):
     global installed_count
@@ -52,7 +52,9 @@ def import_dir_to_rpf(rpf_dir_in_mod: str, rpf_name: str, rpf_in_game: str, rpf_
 
     if is_enhanced and os.path.exists(os.path.join(rpf_dir_in_mod, 'enhanced')):
         rpf_dir_in_mod = os.path.join(rpf_dir_in_mod, 'enhanced')
-
+    #     append_output(f'正在使用增强版mod文件{rpf_dir_in_mod}...')
+    # else:
+    #     append_output(f'正在使用传承版mod文件{rpf_dir_in_mod}...')
     success, msg = import2rpf(rpf_dir_in_mod, rpf_in_modloader, is_enhanced, game_dir)
     return success, msg
 
@@ -72,6 +74,10 @@ def install_an_rpf(rpf_path: str, mod_dir_paths: List[str]) -> Tuple[bool, str]:
         return True, ''
     if rpf_path == 'update/update2.rpf' and is_enhanced:
         append_output(f'跳过{rpf_name}，增强版不支持配套字幕')
+        installed_count += 1
+        return True, ''
+    if rpf_path == 'x64c.rpf' and is_enhanced:
+        append_output(f'跳过{rpf_name}，增强版不支持部分贴图汉化')
         installed_count += 1
         return True, ''
 

@@ -10,10 +10,9 @@ UI基于罪恶都市次时代版启动器：https://github.com/gtamodxcom/GTA-Vi
 # 创建环境, 必须<=3.8，否则win7无法运行
 conda create -n GTAV-CNDub-Setup python=3.8
 conda activate gtav-cndub-setup
-# 构建前端页面
+# 安装前端依赖
 cd Frontend
 npm install
-npm run build
 cd..
 # 安装py依赖
 pip install -r requirements.txt
