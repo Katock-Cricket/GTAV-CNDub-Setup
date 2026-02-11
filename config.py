@@ -53,7 +53,7 @@ rpfs_to_install_static = {
 mod_dir_to_module = {
     'x64c.rpf/levels/gta5/props/lev_des/v_minigame.rpf': '周边汉化',
     'x64d.rpf/movies': '周边汉化',
-    'update/update.rpf/x64/movies': '周边汉化',
+    'update/update.rpf/x64/movies': '主角配音',
     'update/update.rpf/x64/data/lang/chinesesimp_rel.rpf': '配套字幕',
     'update/update.rpf/x64/textures': '周边汉化',
     'x64/audio/sfx/CUTSCENE_MASTERED_ONLY.rpf': '剧情配音',
@@ -78,7 +78,7 @@ mod_dir_to_module = {
     'x64/audio/sfx/SS_UZ.rpf': '剧情配音'
 }
 
-modules = ['主角配音', '剧情配音', '视频配音', '周边汉化', '配套字幕', 'NPC配音']
+modules = ['主角配音', '剧情配音', '周边汉化', '配套字幕', 'NPC配音']
 
 
 def get_modules():

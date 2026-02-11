@@ -169,7 +169,7 @@ export default {
     },
     {
       name: '周边汉化',
-      tip: '[必选]真人配音，部分电视节目；启动动画；部分剧情涉及的贴图汉化'
+      tip: '[可选]真人配音，部分电视节目；部分剧情涉及的贴图汉化，最新版GTA可能报错。'
     },
     {
       name: '配套字幕',
@@ -197,7 +197,10 @@ export default {
     }
   },
   beforeMount() {
-    this.selectedModules = this.modules.map((item: any) => item.name);
+    this.selectedModules = this.modules.filter(item =>
+      item.name === '主角配音' ||
+      item.name === '剧情配音'
+    ).map(item => item.name);
   },
   methods: {
     itemProps(item: { name: string, tip: string }) {
@@ -245,8 +248,7 @@ export default {
         // 如果必选项未选中，则自动加在前面
         let frozenModules = this.modules.filter(item =>
           item.name === '主角配音' ||
-          item.name === '剧情配音' ||
-          item.name === '周边汉化'
+          item.name === '剧情配音'
         ).map(item => item.name);
 
         frozenModules.forEach(item => {
